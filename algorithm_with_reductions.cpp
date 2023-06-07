@@ -17,19 +17,26 @@ int get_row(long long int num)
 
 int main(){
     
-    int m=20; //number of elements (m=5 is for testing)
-    long long int n=3000; //number of subsets (n=10 is for testing)
-    long long int cost_range = 200; // cost of each subset lies in [0,cost_range] 
+    int m; //number of elements 
+    long long int n; //number of subsets
+    long long int cost_range; // cost of each subset lies in [0,cost_range] 
     long long int total_subsets = 1;
     for(int i = 1 ; i <= m ; i++)
     {
         total_subsets=total_subsets*2;
     } 
     // total_subsets = 2**m
-    
     map<long long int,long long int> subset_cost; // assume this comes from the file random_sepa_cpp (that generates random set partition problem)
     string line;
     ifstream myfile ("random_subsets.txt");
+    getline(myfile,line);
+    sscanf(line.c_str(), "%lld", &m); // get vakue of m
+    getline(myfile,line);
+    sscanf(line.c_str(), "%lld", &n); // get value of n
+    getline(myfile,line);
+    sscanf(line.c_str(), "%lld", &cost_range); // get value of cost_range
+    
+    //  reading cost of each subset from file
     for(int i =1 ;i<=n;i++)
     {
         getline(myfile,line);
@@ -38,6 +45,8 @@ int main(){
         subset_cost[key]=value;
     }
     myfile.close();
+
+    // sorting the subsets with respect to their cost
     vector<tuple<long long int,long long int>> sorted_values;
     for(auto i:subset_cost)
     {
@@ -46,16 +55,18 @@ int main(){
         sorted_values.push_back(p);
     }
     sort(sorted_values.begin(),sorted_values.end());
+
+    // creating the matrix with entries 1/0, denoting if a element is present in the respective subset or not.
     vector<long long int> matrix_columns;
+    vector<vector<int>> matrix(m); // creating matrix 
     for(auto i:subset_cost)
     {
         matrix_columns.push_back(i.first);
     }
     
     // Reductions 
-    vector<vector<int>> matrix(m); // creating matrix 
-    
-    
+
+    //filling the entries of the matrix
     for(int i=0;i<matrix_columns.size();i++)
     {
         long long int dummy = matrix_columns[i];
@@ -148,24 +159,26 @@ int main(){
     }
     
 
+    // initialization
     
-    
-    vector<vector<long long int>> v(m+2);
+    vector<vector<long long int>> v(m+2); //index position for each list
     long long int arr[m+2];
     for(int i=0;i<=m+1;i++)
     {
-        arr[i]=0;
+        arr[i]=0; //initialised with 0
     }
 
+    //creating lists 
     for(int i=0;i<sorted_values.size();i++)
     {
         tuple<long long int,long long int> i1=sorted_values[i];
         v[get_row(get<1>(i1))].push_back(get<1>(i1));
     }
-    long long int partial_sol=pre_partial_sol,partial_cost=pre_cost,best_sol=-1;
+
+    long long int partial_sol=pre_partial_sol,partial_cost=pre_cost,best_sol=-1; //intialization 
     float best_cost=numeric_limits<float>::infinity();
     vector<long long int> best_sol_vec;
-    vector<long long int> subsets_in_partial_sol;
+    vector<long long int> subsets_in_partial_sol; // vectoe containing subsets present in partial_sol
     
     while(flag==0)
     {
