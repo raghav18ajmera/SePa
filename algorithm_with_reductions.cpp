@@ -17,25 +17,23 @@ int get_row(long long int num)
 
 int main(){
     
-    int m; //number of elements 
+    long long int m; //number of elements 
     long long int n; //number of subsets
     long long int cost_range; // cost of each subset lies in [0,cost_range] 
     long long int total_subsets = 1;
+   
+    map<long long int,long long int> subset_cost; // assume this comes from the file random_sepa_cpp (that generates random set partition problem)
+    string line;
+    ifstream myfile ("random_subsets.txt");
+    getline(myfile,line);
+    sscanf(line.c_str(), "%lld %lld %lld", &m,&n,&cost_range); // get vakue of m
+    
     for(int i = 1 ; i <= m ; i++)
     {
         total_subsets=total_subsets*2;
     } 
     // total_subsets = 2**m
-    map<long long int,long long int> subset_cost; // assume this comes from the file random_sepa_cpp (that generates random set partition problem)
-    string line;
-    ifstream myfile ("random_subsets.txt");
-    getline(myfile,line);
-    sscanf(line.c_str(), "%lld", &m); // get vakue of m
-    getline(myfile,line);
-    sscanf(line.c_str(), "%lld", &n); // get value of n
-    getline(myfile,line);
-    sscanf(line.c_str(), "%lld", &cost_range); // get value of cost_range
-    
+
     //  reading cost of each subset from file
     for(int i =1 ;i<=n;i++)
     {
@@ -172,7 +170,8 @@ int main(){
     for(int i=0;i<sorted_values.size();i++)
     {
         tuple<long long int,long long int> i1=sorted_values[i];
-        v[get_row(get<1>(i1))].push_back(get<1>(i1));
+        if((get<1>(i1))!=0){
+        v[get_row(get<1>(i1))].push_back(get<1>(i1));}
     }
 
     long long int partial_sol=pre_partial_sol,partial_cost=pre_cost,best_sol=-1; //intialization 
