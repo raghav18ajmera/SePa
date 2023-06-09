@@ -1,14 +1,7 @@
 from pyscipopt import Model, quicksum, SCIP_PARAMSETTING
 import random
 import sys
-random.seed(1)
 
-original_stdout = sys.stdout # Save a reference to the original standard output
-f = open("random_subsets.txt","w")
-sys.stdout = f # Change the standard output to the file we created.
- 
-#Initialize model
-model = Model("Sepa")
 
 # checks if i is present in subset j
 def ele_in_subset(i,j):
@@ -74,20 +67,27 @@ def solve_using_scip(Elements,Profit):
     else:
         print("Problem could not be solved to optimality")
 
-# m = number of elements 
-m = 10 # input
-print(m,end=" ")
+def save_instance_to_file(path: str, elements, profit): 
+    with open(path, "w") as file:
+        file.write(f"{len(elements)} {len(profit)}\n")
+        for subset_number, profit in profit.items():
+            file.write(f"{subset_number} {profit}\n")
 
-# n = number of subset, n <= 2^m
-n = 300 # input
-print(n,end=" ")
 
-# range of cost is integers in [0,C] 
-C = 200 # input
-print(C)
+if __name__ == "__main__":
+    random.seed(1)
+    
+    #Initialize model
+    model = Model("Sepa")
+    # m = number of elements 
+    m = 10 # input
 
-(Elements,Profit)=generate_subsets(m,n,C)
-solve_using_scip(Elements,Profit) 
+    # n = number of subset, n <= 2^m
+    n = 300 # input
 
-f.close()
-sys.stdout = original_stdout # Reset the standard output to its original value
+    # range of cost is integers in [0,C] 
+    C = 200 # input
+
+    (Elements,Profit)=generate_subsets(m,n,C)
+    save_instance_to_file("random_subsets.txt", Elements, Profit)
+    solve_using_scip(Elements,Profit)
