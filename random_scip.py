@@ -75,12 +75,12 @@ def solve_using_scip(Elements,Profit):
         print("Problem could not be solved to optimality")
 
 # m = number of elements 
-m = 4 # input
-print(m)
+m = 10 # input
+print(m,end=" ")
 
 # n = number of subset, n <= 2^m
-n = 10 # input
-print(n)
+n = 300 # input
+print(n,end=" ")
 
 # range of cost is integers in [0,C] 
 C = 200 # input
