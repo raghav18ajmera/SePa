@@ -13,29 +13,25 @@ int get_row(long long int num)
     return row;
 }
 
-
-
-int main(){
-    
-    int m; //number of elements 
+map<long long int,long long int> read_from_file(long long int *ptr_m,long long int *ptr_n,long long int *ptr_cost_range, long long int *ptr_total_subsets)
+{
+    long long int m; //number of elements 
     long long int n; //number of subsets
     long long int cost_range; // cost of each subset lies in [0,cost_range] 
     long long int total_subsets = 1;
+   
+    map<long long int,long long int> subset_cost; 
+    string line;
+    ifstream myfile ("random_subsets.txt");
+    getline(myfile,line);
+    sscanf(line.c_str(), "%lld %lld %lld", &m,&n,&cost_range); // get vakue of m
+    
     for(int i = 1 ; i <= m ; i++)
     {
         total_subsets=total_subsets*2;
     } 
     // total_subsets = 2**m
-    map<long long int,long long int> subset_cost; // assume this comes from the file random_sepa_cpp (that generates random set partition problem)
-    string line;
-    ifstream myfile ("random_subsets.txt");
-    getline(myfile,line);
-    sscanf(line.c_str(), "%lld", &m); // get vakue of m
-    getline(myfile,line);
-    sscanf(line.c_str(), "%lld", &n); // get value of n
-    getline(myfile,line);
-    sscanf(line.c_str(), "%lld", &cost_range); // get value of cost_range
-    
+
     //  reading cost of each subset from file
     for(int i =1 ;i<=n;i++)
     {
@@ -46,6 +42,17 @@ int main(){
     }
     myfile.close();
 
+    *ptr_m=m;
+    *ptr_n=n;
+    *ptr_cost_range=cost_range;
+    *ptr_total_subsets=total_subsets;
+
+    return subset_cost;
+
+}
+
+vector<tuple<long long int,long long int>> sort_wrt_cost(map<long long int,long long int> subset_cost)
+{
     // sorting the subsets with respect to their cost
     vector<tuple<long long int,long long int>> sorted_values;
     for(auto i:subset_cost)
@@ -56,6 +63,12 @@ int main(){
     }
     sort(sorted_values.begin(),sorted_values.end());
 
+    return sorted_values;
+
+}
+
+int reduction_one(long long int m,map<long long int,long long int> subset_cost)
+{
     // creating the matrix with entries 1/0, denoting if a element is present in the respective subset or not.
     vector<long long int> matrix_columns;
     vector<vector<int>> matrix(m); // creating matrix 
@@ -64,8 +77,6 @@ int main(){
         matrix_columns.push_back(i.first);
     }
     
-    // Reductions 
-
     //filling the entries of the matrix
     for(int i=0;i<matrix_columns.size();i++)
     {
@@ -84,7 +95,7 @@ int main(){
         }
     }
     
-    // Reduction 1 : if any row is a null vector, then there exists no solution.
+    // Reduction : if any row is a null vector, then there exists no solution.
     int flag=0; // if any row is null vector, make this flag = 1.
     for(int i=0;i<m;i++)
     {   
@@ -99,11 +110,42 @@ int main(){
             break;
         }
     }
-    
 
-    // Reduction 2 : if a row is a unit vector with a 1 in column t then in every solution x[t] = 1.
+    return flag;
+
+}
+
+void reduction_two(long long int m,map<long long int,long long int> subset_cost, long long int *ptr1, long long int *ptr2)
+{
+    // creating the matrix with entries 1/0, denoting if a element is present in the respective subset or not.
+    vector<long long int> matrix_columns;
     long long int pre_partial_sol=0;
     long long int pre_cost=0;
+    vector<vector<int>> matrix(m); // creating matrix 
+    for(auto i:subset_cost)
+    {
+        matrix_columns.push_back(i.first);
+    }
+    
+    //filling the entries of the matrix
+    for(int i=0;i<matrix_columns.size();i++)
+    {
+        long long int dummy = matrix_columns[i];
+        for(int j=0;j<m;j++)
+        {
+            if(dummy%2==1)
+            {
+                matrix[j].push_back(1);
+            }
+            else
+            {
+                matrix[j].push_back(0);
+            }
+            dummy=dummy/2;
+        }
+    }
+    // Reduction : if a row is a unit vector with a 1 in column t then in every solution x[t] = 1.
+    
     for(int i=0;i<m;i++)
     {   
         int count=0;
@@ -124,9 +166,41 @@ int main(){
         }
         
     }
-    
+    *ptr1=pre_partial_sol;
+    *ptr2=pre_cost;
+    return;
 
-    // Reduction 3 : if a row[k1] >= row[k2], then row k1 can be deleted.
+}
+
+set<int> reduction_three(long long int m,map<long long int,long long int> subset_cost)
+{
+     // creating the matrix with entries 1/0, denoting if a element is present in the respective subset or not.
+    vector<long long int> matrix_columns;
+    vector<vector<int>> matrix(m); // creating matrix 
+    for(auto i:subset_cost)
+    {
+        matrix_columns.push_back(i.first);
+    }
+    
+    //filling the entries of the matrix
+    for(int i=0;i<matrix_columns.size();i++)
+    {
+        long long int dummy = matrix_columns[i];
+        for(int j=0;j<m;j++)
+        {
+            if(dummy%2==1)
+            {
+                matrix[j].push_back(1);
+            }
+            else
+            {
+                matrix[j].push_back(0);
+            }
+            dummy=dummy/2;
+        }
+    }
+
+    // Reduction : if a row[k1] >= row[k2], then row k1 can be deleted.
     set<int> deleted_rows;
     int flag_deleted_row=0;
     long long int deleted_rows_in_binary=0;
@@ -157,10 +231,13 @@ int main(){
             break;
         }
     }
-    
 
-    // initialization
-    
+    return deleted_rows;
+
+}
+
+void algorithm(long long int m,int flag,long long int total_subsets,long long int pre_partial_sol,long long int pre_cost,map<long long int,long long int> subset_cost,vector<tuple<long long int,long long int>> sorted_values,set<int> deleted_rows)
+{
     vector<vector<long long int>> v(m+2); //index position for each list
     long long int arr[m+2];
     for(int i=0;i<=m+1;i++)
@@ -172,14 +249,14 @@ int main(){
     for(int i=0;i<sorted_values.size();i++)
     {
         tuple<long long int,long long int> i1=sorted_values[i];
-        v[get_row(get<1>(i1))].push_back(get<1>(i1));
+        if((get<1>(i1))!=0){
+        v[get_row(get<1>(i1))].push_back(get<1>(i1));}
     }
 
     long long int partial_sol=pre_partial_sol,partial_cost=pre_cost,best_sol=-1; //intialization 
     float best_cost=numeric_limits<float>::infinity();
     vector<long long int> best_sol_vec;
     vector<long long int> subsets_in_partial_sol; // vectoe containing subsets present in partial_sol
-    
     while(flag==0)
     {
         long long int list_no,dummy; 
@@ -250,5 +327,31 @@ int main(){
         }
         cout<<"\n";
     }
+
+}
+
+int main(){
+    
+    long long int m; //number of elements 
+    long long int n; //number of subsets
+    long long int cost_range; //cost of each subset lies in [0,cost_range] 
+    long long int total_subsets; // 2**m
+   
+    map<long long int,long long int> subset_cost; // assume this comes from the file random_subsets.txt (that generates random set partition problem)
+    subset_cost=read_from_file(&m,&n,&cost_range,&total_subsets);
+
+    vector<tuple<long long int,long long int>> sorted_values;
+    sorted_values= sort_wrt_cost(subset_cost); // sorting the subsets with respect to their cost
+    
+    // Reductions
+    int flag=reduction_one(m,subset_cost); // set flag = 0 if you do not want to use reduction 1.
+    long long int pre_partial_sol=0;
+    long long int pre_cost=0;
+    reduction_two(m,subset_cost,&pre_partial_sol,&pre_cost); // call this function if you want to use reduction 2.
+    set<int> deleted_rows; 
+    deleted_rows = reduction_three(m,subset_cost); // call this function if you want to use reduction 3.
+    
+    algorithm(m,flag,total_subsets,pre_partial_sol,pre_cost,subset_cost,sorted_values,deleted_rows); // this function solves the set partition problem
+    
     return 0;
 }
