@@ -13,6 +13,46 @@ int get_row(long long int num)
     return row;
 }
 
+map<string, long long int> read_from_bits_file(long long int *ptr_m,long long int *ptr_n,long long int *ptr_cost_range, long long int *ptr_total_subsets)
+{
+    long long int m; //number of elements 
+    long long int n; //number of subsets
+    long long int cost_range; // cost of each subset lies in [0,cost_range] 
+    long long int total_subsets = 1;
+   
+    map<string,long long int> subset_cost; 
+    string line;
+    ifstream myfile ("random_subsets_bits.txt");
+    getline(myfile,line);
+    sscanf(line.c_str(), "%lld %lld %lld", &m,&n,&cost_range);
+
+    for(int i = 1 ; i <= m ; i++)
+    {
+        total_subsets=total_subsets*2;
+    } 
+    // total_subsets = 2**m
+
+    //  reading cost of each subset from file
+    for(int i =1 ;i<=n;i++)
+    {
+        getline(myfile,line);
+        string key=line;
+        getline(myfile,line);
+        long long int value;
+        sscanf(line.c_str(), "%lld", &value);
+        subset_cost[key]=value;
+    }
+    myfile.close();
+
+    *ptr_m=m;
+    *ptr_n=n;
+    *ptr_cost_range=cost_range;
+    *ptr_total_subsets=total_subsets;
+
+    return subset_cost;
+
+}
+
 map<long long int,long long int> read_from_file(long long int *ptr_m,long long int *ptr_n,long long int *ptr_cost_range, long long int *ptr_total_subsets)
 {
     long long int m; //number of elements 
