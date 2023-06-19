@@ -26,8 +26,8 @@ def generate_subsets(m,n,cost):
         if dummy in Profit:
             continue
         else:
-            Profit[dummy]=random.randint(0,C) 
-            print(dummy," ",Profit[dummy])
+            Profit[dummy]=random.randint(1,C) 
+            # print(dummy," ",Profit[dummy])
 
     return (Elements,Profit)
 
