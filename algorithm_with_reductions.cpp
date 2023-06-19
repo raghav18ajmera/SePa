@@ -58,15 +58,18 @@ map<long long int,long long int> read_from_file(long long int *ptr_m,long long i
 
 }
 
-vector<pair<long long int,long long int> > sort_wrt_cost(map<long long int,long long int> subset_cost)
+vector<pair<long long int,long long int> > sort_wrt_cost(map<long long int,long long int> subset_cost, bool normalize)
 {
     // sorting the subsets with respect to their cost
     vector<pair<long long int,long long int> > sorted_values;
     for(auto i:subset_cost)
     {
-        pair<long long int, long long int> p;
+        pair<double, long long int> p;
+        
         long long int count_of_elements = __builtin_popcount(i.first);
-        double cost_per_element = i.second / (1.0 + count_of_elements); 
+        double divisor = normalize ? count_of_elements + 1 : 1;
+        double cost_per_element = i.second / (divisor); 
+
         p = make_pair(cost_per_element, i.first);
         sorted_values.push_back(p);
     }
@@ -363,7 +366,7 @@ int main(){
     subset_cost=read_from_file(&m,&n,&cost_range,&total_subsets);
 
     vector<pair<long long int,long long int> > sorted_values;
-    sorted_values= sort_wrt_cost(subset_cost); // sorting the subsets with respect to their cost
+    sorted_values= sort_wrt_cost(subset_cost, false); // sorting the subsets with respect to their cost
     
     // Reductions
     int flag=reduction_one(m,subset_cost); // set flag = 0 if you do not want to use reduction 1.
