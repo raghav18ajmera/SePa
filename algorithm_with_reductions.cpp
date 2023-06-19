@@ -65,7 +65,9 @@ vector<pair<long long int,long long int> > sort_wrt_cost(map<long long int,long 
     for(auto i:subset_cost)
     {
         pair<long long int, long long int> p;
-        p = make_pair(i.second, i.first);
+        long long int count_of_elements = __builtin_popcount(i.first);
+        double cost_per_element = i.second / (1.0 + count_of_elements); 
+        p = make_pair(cost_per_element, i.first);
         sorted_values.push_back(p);
     }
     sort(sorted_values.begin(),sorted_values.end());
