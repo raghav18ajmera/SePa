@@ -355,8 +355,19 @@ void algorithm(long long int m,int flag,long long int total_subsets,long long in
 
 }
 
+
+/// Start of tests
+void test_solve() { 
+    // load some simple instance
+    // solve it
+    assert(1 == 2);
+}
+
 int main(){
-    
+    // run tests
+    test_solve();
+
+
     long long int m; //number of elements 
     long long int n; //number of subsets
     long long int cost_range; //cost of each subset lies in [0,cost_range] 
