@@ -1,5 +1,12 @@
-#include <bits/stdc++.h>
 #include <fstream>
+#include <map>
+#include <iostream>
+#include <utility>
+#include <cmath>
+#include <set>
+#include <vector>
+#include <chrono>
+
 using namespace std;
 
 int get_row(long long int num)
@@ -51,14 +58,14 @@ map<long long int,long long int> read_from_file(long long int *ptr_m,long long i
 
 }
 
-vector<tuple<long long int,long long int>> sort_wrt_cost(map<long long int,long long int> subset_cost)
+vector<pair<long long int,long long int> > sort_wrt_cost(map<long long int,long long int> subset_cost)
 {
     // sorting the subsets with respect to their cost
-    vector<tuple<long long int,long long int>> sorted_values;
+    vector<pair<long long int,long long int> > sorted_values;
     for(auto i:subset_cost)
     {
-        tuple<long long int,long long int> p;
-        p = make_tuple(i.second,i.first);
+        pair<long long int, long long int> p;
+        p = make_pair(i.second, i.first);
         sorted_values.push_back(p);
     }
     sort(sorted_values.begin(),sorted_values.end());
@@ -71,7 +78,7 @@ int reduction_one(long long int m,map<long long int,long long int> subset_cost)
 {
     // creating the matrix with entries 1/0, denoting if a element is present in the respective subset or not.
     vector<long long int> matrix_columns;
-    vector<vector<int>> matrix(m); // creating matrix 
+    vector<vector<int> > matrix(m); // creating matrix 
     for(auto i:subset_cost)
     {
         matrix_columns.push_back(i.first);
@@ -107,6 +114,7 @@ int reduction_one(long long int m,map<long long int,long long int> subset_cost)
         if(j==matrix_columns.size())
         {
             flag=1;
+            cout << "Found a null vector. No solution exists.";
             break;
         }
     }
@@ -121,7 +129,7 @@ void reduction_two(long long int m,map<long long int,long long int> subset_cost,
     vector<long long int> matrix_columns;
     long long int pre_partial_sol=0;
     long long int pre_cost=0;
-    vector<vector<int>> matrix(m); // creating matrix 
+    vector<vector<int> > matrix(m); // creating matrix 
     for(auto i:subset_cost)
     {
         matrix_columns.push_back(i.first);
@@ -176,7 +184,7 @@ set<int> reduction_three(long long int m,map<long long int,long long int> subset
 {
      // creating the matrix with entries 1/0, denoting if a element is present in the respective subset or not.
     vector<long long int> matrix_columns;
-    vector<vector<int>> matrix(m); // creating matrix 
+    vector<vector<int> > matrix(m); // creating matrix 
     for(auto i:subset_cost)
     {
         matrix_columns.push_back(i.first);
@@ -236,9 +244,9 @@ set<int> reduction_three(long long int m,map<long long int,long long int> subset
 
 }
 
-void algorithm(long long int m,int flag,long long int total_subsets,long long int pre_partial_sol,long long int pre_cost,map<long long int,long long int> subset_cost,vector<tuple<long long int,long long int>> sorted_values,set<int> deleted_rows)
+void algorithm(long long int m,int flag,long long int total_subsets,long long int pre_partial_sol,long long int pre_cost,map<long long int,long long int> subset_cost,vector<pair<long long int,long long int> > sorted_values,set<int> deleted_rows)
 {
-    vector<vector<long long int>> v(m+2); //index position for each list
+    vector<vector<long long int> > v(m+2); //index position for each list
     long long int arr[m+2];
     for(int i=0;i<=m+1;i++)
     {
@@ -248,7 +256,7 @@ void algorithm(long long int m,int flag,long long int total_subsets,long long in
     //creating lists 
     for(int i=0;i<sorted_values.size();i++)
     {
-        tuple<long long int,long long int> i1=sorted_values[i];
+        pair<long long int,long long int> i1=sorted_values[i];
         if((get<1>(i1))!=0){
         v[get_row(get<1>(i1))].push_back(get<1>(i1));}
     }
@@ -257,8 +265,19 @@ void algorithm(long long int m,int flag,long long int total_subsets,long long in
     float best_cost=numeric_limits<float>::infinity();
     vector<long long int> best_sol_vec;
     vector<long long int> subsets_in_partial_sol; // vectoe containing subsets present in partial_sol
+    unsigned long long int counter=0;
+    auto start = std::chrono::high_resolution_clock::now();
+
     while(flag==0)
     {
+        counter++;
+        if (counter%10000==0)
+        {
+            auto end = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+            cout<< duration << "s at iteration " << counter <<endl;
+            
+        }
         long long int list_no,dummy; 
         list_no=0;
         dummy=partial_sol;
@@ -286,6 +305,7 @@ void algorithm(long long int m,int flag,long long int total_subsets,long long in
                 best_cost=partial_cost;
                 best_sol=1;
                 best_sol_vec=subsets_in_partial_sol;
+                cout << "Found sol with cost " << best_cost << endl;
             }
             if(subsets_in_partial_sol.size()==0)
             {
@@ -340,7 +360,7 @@ int main(){
     map<long long int,long long int> subset_cost; // assume this comes from the file random_subsets.txt (that generates random set partition problem)
     subset_cost=read_from_file(&m,&n,&cost_range,&total_subsets);
 
-    vector<tuple<long long int,long long int>> sorted_values;
+    vector<pair<long long int,long long int> > sorted_values;
     sorted_values= sort_wrt_cost(subset_cost); // sorting the subsets with respect to their cost
     
     // Reductions
@@ -350,7 +370,7 @@ int main(){
     reduction_two(m,subset_cost,&pre_partial_sol,&pre_cost); // call this function if you want to use reduction 2.
     set<int> deleted_rows; 
     deleted_rows = reduction_three(m,subset_cost); // call this function if you want to use reduction 3.
-    
+
     algorithm(m,flag,total_subsets,pre_partial_sol,pre_cost,subset_cost,sorted_values,deleted_rows); // this function solves the set partition problem
     
     return 0;
