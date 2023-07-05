@@ -95,7 +95,25 @@ def save_instance_to_file2(path: str,upper_bound,lower_bound,scip_time):
         file.write(f"{upper_bound}\n")
         file.write(f"{lower_bound}\n")
         file.write(f"{scip_time}\n")
+
+def read_from_file(path):
+    with open(path, "r") as f:
+        elements = {}
+        costs = {} 
+
+        m, n = map(int, f.readline())
+
+        for i in range(m):
+            elements[i] = 1
         
+        for _ in range(n):
+            subset_num = int(f.readline(), 2)
+            cost = int(f.readline())
+
+            costs[subset_num] = cost
+
+    return elements, costs
+
 
 
 if __name__ == "__main__": 
@@ -122,12 +140,4 @@ if __name__ == "__main__":
     #         j=j+100
     #     i=i+10
 
-    i, j, C, p = map(int, sys.argv[1:])
-
-    elements, costs = generate_subsets(i, j, C, p)
-
-    file_name = f"/scratch/htc/mghannam/SePa/instances/{i}_{j}_{p}.txt"
-    if os.path.exists(file_name):
-        print("done")
-        exit()
-    save_instance_to_file(file_name, elements, costs)
+    instance_path = sys.argv[1]
