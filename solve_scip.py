@@ -101,7 +101,7 @@ def read_from_file(path):
         elements = {}
         costs = {} 
 
-        m, n = map(int, f.readline())
+        m, n = map(int, f.readline().split(" "))
 
         for i in range(m):
             elements[i] = 1
@@ -141,3 +141,9 @@ if __name__ == "__main__":
     #     i=i+10
 
     instance_path = sys.argv[1]
+
+    elements, costs = read_from_file(instance_path)
+    upper_bound, lower_bound, scip_time = solve_using_scip(elements, costs)
+    instance_name = instance_path.split("/")[-1].split(".")[0]
+    output_path = f"/scratch/htc/mghannam/SePa/results/scip/{instance_name}.sol"
+    save_instance_to_file2(output_path, upper_bound, lower_bound, scip_time)
