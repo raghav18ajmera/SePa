@@ -212,7 +212,7 @@ int reduction_one(long long int m,unordered_map<long long int,long long int> sub
         if(j==matrix_columns.size())
         {
             flag=1;
-            cout << "Found a null vector. No solution exists.";
+            //cout << "Found a null vector. No solution exists.";
             break;
         }
     }
@@ -373,7 +373,7 @@ void algorithm(long long int m,int flag,long long int total_subsets,long long in
         {
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-            cout<< duration << "s at iteration " << counter <<endl;
+            //cout<< duration << "s at iteration " << counter <<endl;
             
         }
         long long int list_no,dummy; 
@@ -403,7 +403,7 @@ void algorithm(long long int m,int flag,long long int total_subsets,long long in
                 best_cost=partial_cost;
                 best_sol=1;
                 best_sol_vec=subsets_in_partial_sol;
-                cout << "Found sol with cost " << best_cost << endl;
+                //cout << "Found sol with cost " << best_cost << endl;
             }
             if(subsets_in_partial_sol.size()==0)
             {
@@ -486,7 +486,7 @@ long long int algorithm_with_bitsets(long long int m,int flag,long long int tota
         {
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
-            cout<< duration << "s at iteration " << counter <<endl;
+            //cout<< duration << "s at iteration " << counter <<endl;
             
         }
         long long int list_no; 
@@ -518,7 +518,7 @@ long long int algorithm_with_bitsets(long long int m,int flag,long long int tota
                 best_cost=partial_cost;
                 best_sol=1;
                 best_sol_vec=subsets_in_partial_sol;
-                cout << "Found sol with cost " << best_cost << endl;
+                //cout << "Found sol with cost " << best_cost << endl;
             }
             if(subsets_in_partial_sol.size()==0)
             {
@@ -548,26 +548,18 @@ long long int algorithm_with_bitsets(long long int m,int flag,long long int tota
     }
     if(best_sol==-1||flag==1)
     {
+        
+        //cout<<"no solution found"<<"\n";
         return -1;
     }
     else
     {
+        //cout<<best_cost<<"\n";
         return best_cost;
     }
 
 }
 
-void compare(long long int algo_answer,string file_name2)
-{
-    string line;
-    ifstream myfile (file_name2);
-    float scip_answer;
-    getline(myfile,line);
-    sscanf(line.c_str(), "%f", &scip_answer);
-    // compare results ,scip_time, algo_time,etc
-    cout<<algo_answer<<"\n";
-    return;
-}
 
 void tests(string file_name1,string file_name2){
 
@@ -600,13 +592,23 @@ void tests(string file_name1,string file_name2){
     long long algo_answer=algorithm_with_bitsets(m,flag,total_subsets,pre_partial_sol,pre_cost,subset_cost_bitset,sorted_values_bitset,deleted_rows);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count(); // duration is time taken by algorithm
-    compare(algo_answer,file_name2);
-    return ;
+    ofstream MyFile(file_name2);
+    if(algo_answer==-1)
+    {
+        MyFile<<"No solution found\n";
+    }
+    else
+    {
+        MyFile<<"Optimal Solution : "<<algo_answer<<"\n";
+    }
+    MyFile<<"Time : "<<duration<<"\n";
+    MyFile.close();
+    return;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     // call tests here
-    tests("4_10_1.txt","4_10_1_output.txt");
+    tests(argv[1],argv[2]);
     return 0;
 }

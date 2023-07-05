@@ -68,13 +68,10 @@ def solve_using_scip(Elements,Profit):
     # need to return lower and upper bonds, time taken by scip and subsets present in optimal solution
     # terminate it 1 hour time!
     
-    if model.getStatus() == "optimal":
-        print("Optimal value:", model.getObjVal())
-        return model.getObjVal()
     
-
-    else:
-        return -1
+    print("Optimal value:", model.getObjVal())
+    return (model.getObjVal(),model.getDualbound(),model.getSolvingTime())
+    
 
 def save_instance_to_file(path: str, elements, profit): 
     with open(path, "w") as file:
@@ -93,9 +90,11 @@ def save_instance_to_file(path: str, elements, profit):
             file.write(f"\n")
             file.write(f"{profit}\n")
 
-def save_instance_to_file2(path: str,answer):
+def save_instance_to_file2(path: str,upper_bound,lower_bound,scip_time):
     with open(path, "w") as file:
-        file.write(f"{answer}\n")
+        file.write(f"{upper_bound}\n")
+        file.write(f"{lower_bound}\n")
+        file.write(f"{scip_time}\n")
         
 
 
@@ -106,19 +105,19 @@ if __name__ == "__main__":
     C = 200 # input
 
     # change range of i,j,p as required 
-    i=4
-    while(i<6):
+    i=10
+    while(i<201):
         j=10
-        while ((j<=pow(2,i)) and (j<15)):
+        while ((j<=pow(2,i)) and (j<10001)):
             #probability of a element to be present in each subset is p/10
             p=1
-            while(p<3):
+            while(p<10):
                 (Elements,Profit)=generate_subsets(i,j,C,p)
                 file_name=str(i)+"_"+str(j)+"_"+str(p)+".txt"
                 file_name2=str(i)+"_"+str(j)+"_"+str(p)+"_output.txt"
-                answer=solve_using_scip(Elements,Profit)
+                (upper_bound,lower_bound,scip_time)=solve_using_scip(Elements,Profit)
                 save_instance_to_file(file_name, Elements, Profit)
-                save_instance_to_file2(file_name2,answer)
+                save_instance_to_file2(file_name2,upper_bound,lower_bound,scip_time)
                 p=p+1
-            j=j+3
-        i=i+1
+            j=j+100
+        i=i+10
