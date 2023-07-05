@@ -6,7 +6,7 @@ do
         do
             file_name=experiments/scip_$i\_$j\_$p.sh 
             echo "#!/bin/sh" > $file_name
-            echo "python solve_scip.py instances/$i\_$j\_$p.txt" >> $file_name
+            echo "./dp instances/$i\_$j\_$p.txt results/dp/$i\_$j\_$p.sol" >> $file_name
             sbatch --partition opt_int $file_name
             rm $file_name
         done 
