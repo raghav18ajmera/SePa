@@ -486,6 +486,9 @@ long long int algorithm_with_bitsets(long long int m,int flag,long long int tota
         {
             auto end = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start).count();
+            if (duration > 3600) {
+                break;
+            }
             //cout<< duration << "s at iteration " << counter <<endl;
             
         }
@@ -599,9 +602,9 @@ void tests(string file_name1,string file_name2){
     }
     else
     {
-        MyFile<<"Optimal Solution : "<<algo_answer<<"\n";
+        MyFile<<algo_answer<<"\n";
     }
-    MyFile<<"Time : "<<duration<<"\n";
+    MyFile<<duration<<"\n";
     MyFile.close();
     return;
 }

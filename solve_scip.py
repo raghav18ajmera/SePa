@@ -62,7 +62,7 @@ def solve_using_scip(Elements,Profit):
     
     # Objective ( TO MINIMIZE )
     model.setObjective(quicksum(Profit[j]*x[j] for j in Profit_key), "minimize")
-    
+    model.setRealParam("limits/time", 3600)
     model.optimize()
 
     # need to return lower and upper bonds, time taken by scip and subsets present in optimal solution
