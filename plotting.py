@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 import plotly.express as px
 
@@ -121,7 +122,7 @@ def scatter_plot_compare_two(y_axis="time", y_axis2="time"):
     solver2 = "dp"
 
     data = {
-        "x": [], "y": [], "instance": [], "upperscip": [], "upperdp": [], "p": []
+        "x": [], "y": [], "instance": [], "upperscip": [], "upperdp": [], "p": [], "m": [], "n": [], "size": []
     }
 
     for instance, group in df.groupby(["instance"]):
@@ -138,14 +139,17 @@ def scatter_plot_compare_two(y_axis="time", y_axis2="time"):
             data["upperdp"].append(upperdp)
             data["upperscip"].append(upperscip)
             data["instance"].append(instance)
-            data["p"].append(int(instance[0].split("_")[-1]))
+            data["p"].append(instance[-1])
+            data["m"].append(instance.split("_")[0])
+            data["n"].append(instance.split("_")[1])
+            data["size"].append(math.log(float(data["n"][-1]) * float(data["m"][-1]) * float(data["p"][-1]) / 10.0)) # expected density
 
 
     log = y_axis == "time"
     fig = px.scatter(data, x="x", y="y",
-                     color="p",
-                     # marginal_x="rug",
-                     # marginal_y="rug",
+                     color="size",
+                    #  marginal_x="rug",
+                    #  marginal_y="rug",
                      hover_data=["x", "y", "instance", "upperdp", "upperscip"], log_x=log, log_y=log,
                      trendline="ols", trendline_scope="overall",
                      trendline_options=dict(log_x=log, log_y=log),
@@ -191,4 +195,4 @@ if __name__ == "__main__":
         print(f"solver {solver} solved {len(df[(df.solver == solver) & (df.upper > 0)])} instances")
         
     # all_points_plot()
-    # scatter_plot_compare_two()
+    scatter_plot_compare_two()
